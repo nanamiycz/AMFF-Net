@@ -1,0 +1,4 @@
+*.pth
+checkpoint/
+baselines_weights/
+results/
