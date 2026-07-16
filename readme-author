@@ -1,0 +1,70 @@
+Markdown
+## 🚀 AMFF-Net: Innovative Experiments & Usage
+
+This section provides official instructions to reproduce the core innovations proposed in our manuscript: the **Adaptive Multi-Frequency Fusion Network (AMFF-Net)** and the **Frequency Attention Module (FAM)** for cross-generator synthetic image detection.
+
+### 1. Environment & Data Preparation
+
+Ensure that your environment is configured and the datasets are properly linked. 
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Ensure the datasets folder is properly symlinked to your data directory
+ln -s /path/to/your/datasets ./datasets
+2. Training the AMFF-Net (Multi-Band Fusion)
+To train the proposed AMFF-Net with the Frequency Attention Module, we utilize the multi-band fine-tuning script. This pipeline extracts ultra-high (HH), high (HL/LH), and low (LL) frequency components and dynamically aligns them.
+
+You can start the training process using the provided shell script:
+
+Bash
+bash scripts/train_mb.sh
+Alternatively, to run the training manually with custom hyperparameters:
+
+Bash
+python main_finetune_mb.py \
+    --model safe_mb_attention \
+    --batch_size 64 \
+    --epochs 50 \
+    --lr 1e-4 \
+    --data_path ./datasets/train_data \
+    --output_dir ./results/diffusion_trained_model
+Note: The --model safe_mb_attention flag explicitly activates our proposed FAM module.
+
+3. Cross-Domain Evaluation
+To evaluate the zero-shot generalization ability of the trained AMFF-Net on unseen diffusion models or legacy GAN architectures:
+
+Bash
+bash scripts/eval_mb.sh
+For detailed robustness evaluation against real-world degradations (e.g., JPEG compression, blurring), run the specific robustness script:
+
+Bash
+bash scripts/eval_robustness.sh
+The evaluation results, including Accuracy and Average Precision (AP), will be automatically saved to ./results/eval_results_ours.csv.
+
+4. Ablation Studies
+To verify the effectiveness of individual frequency bands and the necessity of the proposed attention mechanism versus naive concatenation, execute the ablation suite:
+
+Bash
+bash scripts/run_ablation.sh
+Logs for the ablation studies will be documented in ./results/ablation/ablation.log.
+
+5. Visualization & Analysis Tools
+A key contribution of our work is mitigating "frequency bias". We provide several tools to visualize the internal mechanics of AMFF-Net and provide interpretable insights.
+
+Extract Frequency Heatmaps:
+Visualizes the spectral energy distribution differences between Real, GAN, and Diffusion images.
+
+Bash
+python tools/frequency_heatmaps.py --input_dir ./test_data_level_1/ --output_dir ./assets/
+Visualize Frequency Attention Weights (FAM):
+Generates attention maps to demonstrate how AMFF-Net dynamically re-weights frequency bands to avoid signal dampening.
+
+Bash
+python tools/vis_attention.py --checkpoint ./results/diffusion_trained_model/checkpoint-best.pth
+t-SNE Feature Space Visualization:
+Compares the feature clustering between the baseline model and AMFF-Net.
+
+Bash
+python tools/vis_tsne_comparison.py
